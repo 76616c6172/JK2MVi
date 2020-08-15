@@ -406,9 +406,8 @@ Sets the usercmd_t based on key states
 */
 void CL_KeyMove( usercmd_t *cmd ) {
 	int		movespeed;
-	int		forward,	side,	up, 
-			f, b,		r, l,	u, d;
-
+	int		forward,f,b,	side,r,l,	up,u,d; 
+	
 	//
 	// adjust for speed key / running
 	// the walking flag is to keep animations consistant
@@ -440,10 +439,11 @@ void CL_KeyMove( usercmd_t *cmd ) {
 		side = (in_moveright.downtime > in_moveleft.downtime ? r : -l);
 	}
 
-	/*valar new up+down input handling, if both are pressed send only up input.
+	/*valar new up+down input handling
 	---*/
 	u = movespeed * CL_KeyState (&in_up);
 	d = movespeed * CL_KeyState (&in_down);
+	//if both are down send only up input.
 	up = (u >= d ? u : -d);
 
 	/*valar new forward/back input handling
