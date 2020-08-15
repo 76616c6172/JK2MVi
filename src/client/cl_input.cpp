@@ -267,7 +267,7 @@ float CL_KeyState( kbutton_t *key ) {
 		} else {
 			msec += com_frameTime - key->downtime;
 		}
-		key->downtime = com_frameTime;
+		//valar removed: key->downtime = com_frameTime;
 	}
 
 #if 0
@@ -406,7 +406,8 @@ Sets the usercmd_t based on key states
 */
 void CL_KeyMove( usercmd_t *cmd ) {
 	int		movespeed;
-	int		forward, side, up, u, d;
+	int		forward,	side,	up, 
+			f, b,		r, l,	u, d;
 
 	//
 	// adjust for speed key / running
@@ -429,16 +430,31 @@ void CL_KeyMove( usercmd_t *cmd ) {
 		side -= movespeed * CL_KeyState (&in_left);
 	}
 
-	side += movespeed * CL_KeyState (&in_moveright);
-	side -= movespeed * CL_KeyState (&in_moveleft);
+	/*valar new right/left input handling
+	---*/
+	r = movespeed * CL_KeyState (&in_moveright);
+	l = movespeed * CL_KeyState (&in_moveleft);
+	side = r - l;
+	//if both are down send only the most recent input.
+	if (r && l) {
+		side = (in_moveright.downtime > in_moveleft.downtime ? r : -l);
+	}
 
-	//valar new up+down input handling, if both are pressed send only up input.
+	/*valar new up+down input handling, if both are pressed send only up input.
+	---*/
 	u = movespeed * CL_KeyState (&in_up);
 	d = movespeed * CL_KeyState (&in_down);
 	up = (u >= d ? u : -d);
 
-	forward += movespeed * CL_KeyState (&in_forward);
-	forward -= movespeed * CL_KeyState (&in_back);
+	/*valar new forward/back input handling
+	---*/
+	f = movespeed * CL_KeyState (&in_forward);
+	b = movespeed * CL_KeyState (&in_back);
+	forward = f - b;
+	//if both are down send only the most recent input.
+	if (f && b) {
+		forward = (in_forward.downtime > in_back.downtime ? f : -b);
+	}
 
 	cmd->forwardmove = ClampChar( forward );
 	cmd->rightmove = ClampChar( side );
