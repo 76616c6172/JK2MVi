@@ -1,5 +1,5 @@
 # jk2mvi 
-jk2mvi - jk2mv "improved" :> is a fork of JK2MV https://jk2mv.org
+Jk2mv "improved" :> is a fork of JK2MV https://jk2mv.org
 - More responsive strafe inputs similar to "null movement" from TF2.
 - Up input takes precedence over down, for a better experience when playing physics modes that utilize "crouch sliding"
 
