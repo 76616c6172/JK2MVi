@@ -4,6 +4,7 @@
 
 unsigned	frame_msec;
 int			old_com_frameTime;
+extern int wishSaberStyle = FORCE_LEVEL_1;
 
 /*
 ===============================================================================
@@ -167,6 +168,29 @@ void IN_GenCMD20( void )
 	cl.gcmdSendValue = qtrue;
 	cl.gcmdValue = GENCMD_FORCE_THROW;
 }
+
+/*valar new commands*/
+void IN_blue(void)			//POC command for saberstyle switching
+{
+	cl.gcmdValue = GENCMD_SABERATTACKCYCLE;
+	cl.gcmdSendValue = qtrue;
+}
+
+void IN_GenCMD21( void )	//valar  goal: blue stance
+{
+	wishSaberStyle = FORCE_LEVEL_1;
+}
+void IN_GenCMD22( void )	//valar goal: ylw stance
+{	
+	wishSaberStyle = FORCE_LEVEL_2;
+}
+void IN_GenCMD23( void )	//valar goal: red stance
+{
+	wishSaberStyle = FORCE_LEVEL_3;
+}
+/*valar end of new commands*/
+
+
 
 void IN_KeyDown( kbutton_t *b ) {
 	int		k;
@@ -852,19 +876,22 @@ qboolean CL_ReadyToSendPacket( void ) {
 	if ( Sys_IsLANAddress( clc.netchan.remoteAddress ) ) {
 		return qtrue;
 	}
-
+/*
 	// check for exceeding cl_maxpackets
+	//	valar: let's not.
 	if ( cl_maxpackets->integer < 15 ) {
 		Cvar_Set( "cl_maxpackets", "15" );
 	} else if ( cl_maxpackets->integer > 100 ) {
 		Cvar_Set( "cl_maxpackets", "100" );
 	}
+*/
 	oldPacketNum = (clc.netchan.outgoingSequence - 1) & PACKET_MASK;
 	delta = cls.realtime -  cl.outPackets[ oldPacketNum ].p_realtime;
 	if ( delta < 1000 / cl_maxpackets->integer ) {
 		// the accumulated commands will go out in the next packet
 		return qfalse;
 	}
+	
 
 	return qtrue;
 }
@@ -1012,6 +1039,10 @@ void CL_SendCmd( void ) {
 		return;
 	}
 
+	if ( cl.snap.ps.fd.saberAnimLevel == wishSaberStyle ){ }else{
+	cl.gcmdValue = GENCMD_SABERATTACKCYCLE;
+	cl.gcmdSendValue = qtrue;
+	}
 	// don't send commands if paused
 	if ( com_sv_running->integer && sv_paused->integer && cl_paused->integer ) {
 		return;
@@ -1135,6 +1166,10 @@ void CL_InitInput( void ) {
 	Cmd_AddCommand ("use_sentry", IN_GenCMD18);
 	Cmd_AddCommand ("saberAttackCycle", IN_GenCMD19);
 	Cmd_AddCommand ("force_throw", IN_GenCMD20);
+	/*valar new client commands*/
+	Cmd_AddCommand ("v_fast", IN_GenCMD21);
+	Cmd_AddCommand ("v_medium", IN_GenCMD22);
+	Cmd_AddCommand ("v_heavy", IN_GenCMD23);
 
 	cl_nodelta = Cvar_Get ("cl_nodelta", "0", 0);
 	cl_debugMove = Cvar_Get ("cl_debugMove", "0", 0);

@@ -12,6 +12,9 @@
 
 #define	RETRANSMIT_TIMEOUT	3000	// time between connection packet retransmits
 
+//valar
+
+
 // Wind
 extern vec3_t cl_windVec;
 
