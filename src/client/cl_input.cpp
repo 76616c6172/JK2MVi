@@ -4,8 +4,10 @@
 
 unsigned	frame_msec;
 int			old_com_frameTime;
-extern int wishSaberStyle = FORCE_LEVEL_1;
 
+//valar how often to cycle to get to the saberstyle we want
+extern int saberCycleThisManyTimes = 0;
+extern int cycledThisframe = 0;
 /*
 ===============================================================================
 
@@ -178,15 +180,41 @@ void IN_blue(void)			//POC command for saberstyle switching
 
 void IN_GenCMD21( void )	//valar  goal: blue stance
 {
-	wishSaberStyle = FORCE_LEVEL_1;
+	if (cl.snap.ps.fd.saberAnimLevel == FORCE_LEVEL_1) {
+	 saberCycleThisManyTimes = 0;	//do nothing
+	}else if (cl.snap.ps.fd.saberAnimLevel == FORCE_LEVEL_3) {
+	 saberCycleThisManyTimes = 1;	//cycle once
+	}else{
+	 saberCycleThisManyTimes = 2;}	//cycle twice
+	if (cycledThisframe == 1) {
+	--saberCycleThisManyTimes;
+	}
 }
 void IN_GenCMD22( void )	//valar goal: ylw stance
 {	
-	wishSaberStyle = FORCE_LEVEL_2;
+	if (cl.snap.ps.fd.saberAnimLevel == FORCE_LEVEL_2) {
+	 saberCycleThisManyTimes = 0;
+	}
+	else if (cl.snap.ps.fd.saberAnimLevel == FORCE_LEVEL_1) {
+	 saberCycleThisManyTimes = 1;
+	}else{
+	 saberCycleThisManyTimes = 2; }
+	if (cycledThisframe == 1) {
+	--saberCycleThisManyTimes;
+	}
 }
 void IN_GenCMD23( void )	//valar goal: red stance
 {
-	wishSaberStyle = FORCE_LEVEL_3;
+	if ( cl.snap.ps.fd.saberAnimLevel == FORCE_LEVEL_3 ) {
+	 saberCycleThisManyTimes = 0;
+	}
+	else if (cl.snap.ps.fd.saberAnimLevel == FORCE_LEVEL_2) {
+	 saberCycleThisManyTimes = 1;
+	}else{
+	 saberCycleThisManyTimes = 2; }
+	if (cycledThisframe == 1) {
+	--saberCycleThisManyTimes;
+	}
 }
 /*valar end of new commands*/
 
@@ -1038,10 +1066,15 @@ void CL_SendCmd( void ) {
 	if ( cls.state < CA_CONNECTED ) {
 		return;
 	}
+	cycledThisframe = 0;
 
-	if ( cl.snap.ps.fd.saberAnimLevel == wishSaberStyle ){ }else{
+	if (saberCycleThisManyTimes == 0) {
+	//do nothing
+	}else{
 	cl.gcmdValue = GENCMD_SABERATTACKCYCLE;
 	cl.gcmdSendValue = qtrue;
+	saberCycleThisManyTimes--;
+	cycledThisframe = 1;
 	}
 	// don't send commands if paused
 	if ( com_sv_running->integer && sv_paused->integer && cl_paused->integer ) {
